@@ -30,9 +30,15 @@ def get_paper_details(year: int, paper_id: int) -> list:
     """
     url = f"https://icml.cc/Conferences/{year}/Schedule?showEvent={paper_id}"
     soup = cached_request(url)
-    authors = soup.find(id="base-main-content").find_all("button")
+    authors = soup.find(id="base-main-content")
+    if authors is None:
+        authors = []
+    else:
+        authors = authors.find_all("button")
 
-    abstract = soup.find(class_="abstractContainer").find("p")
+    abstract = soup.find(class_="abstractContainer")
+    if abstract is not None:
+        abstract = abstract.find("p")
     if abstract is not None:
         abstract = abstract.text
 

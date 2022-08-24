@@ -32,30 +32,31 @@ def get_records(paper: dict) -> list:
 if __name__ == "__main__":
     # parse args
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output", "-o", type=str, default="records.json", help="output file")
-    parser.add_argument("--csvout", type=str, default="records.csv", help="output file")
+    parser.add_argument("--output", "-o", type=str, default="data/records.json", help="output file")
+    parser.add_argument("--csvout", type=str, default="data/records.csv", help="output file")
     parser.add_argument("--processes", "-n", type=int, default=os.cpu_count() * 2, help="number of processes")
     args = parser.parse_args()
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
     # get all papers
     logging.info("Starting ICML Crawler")
     records = []
+    # don't download papers that are already in database
+    file_name = args.output
+    if os.path.exists(file_name):
+        with open(file_name, "r") as f:
+            records = json.load(f)
+    existing_paper_ids = set([record["paperid"] for record in records])
+
+    i = 0
     for year in reversed(range(2010, 2023)):
         papers = get_all_papers(year)
-
-        # don't download papers that are already in database
-        file_name = args.output
-        if os.path.exists(file_name):
-            with open(file_name, "r") as f:
-                records = json.load(f)
-        existing_paper_ids = set([record["paperid"] for record in records])
         papers = [paper for paper in papers if paper["id"] not in existing_paper_ids]
 
         # download paper authors
         if len(papers) > 0:
             with Pool(processes=args.processes) as pool:
                 pbar = tqdm(pool.imap(get_records, papers), total=len(papers))
-                i = 0
                 for new_records in pbar:
                     records.extend(new_records)
                     if len(new_records) > 0:
@@ -65,8 +66,8 @@ if __name__ == "__main__":
                         with open(args.output, "w") as f:
                             json.dump(records, f)
                     i += 1
-            with open(args.output, "w") as f:
-                json.dump(records, f)
+    with open(args.output, "w") as f:
+        json.dump(records, f)
 
     # convert to csv
     df = pd.DataFrame(records)

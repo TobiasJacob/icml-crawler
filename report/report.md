@@ -4,18 +4,6 @@ This repository analyzes recent icml contributions. If you want to play around w
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/TobiasJacob/icml-crawler)
 
-## Setup
-
-Follow the script [build_and_publish.sh](build_and_publish.sh) for setup and report generation.
-
-The download uses a multiprocessing architecture to crawl through all paper submissions within several minutes.
-
-## I just want to download the dataset
-
-You can download the dataset in the [releases](https://github.com/TobiasJacob/icml-crawler/releases) section. 
-
-## Example Analysis
-
 
 ```python
 import pandas as pd
@@ -202,7 +190,7 @@ pass
 
 
     
-![png](README_files/README_6_0.png)
+![png](report_files/report_6_0.png)
     
 
 
