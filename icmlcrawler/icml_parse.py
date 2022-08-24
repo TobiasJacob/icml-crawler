@@ -1,24 +1,25 @@
 from .cached_request import cached_request
 
 
-def get_all_papers():
+def get_all_papers(year: int):
     """Get all papers from the ICML conference website.
 
     Returns:
         list: list of all papers.
     """
-    url = "https://icml.cc/Conferences/2022/Schedule?type=Poster"
+    url = f"https://icml.cc/Conferences/{year}/Schedule?type=Poster"
     soup = cached_request(url)
     papers = soup.find_all("div", class_="poster")
 
     return [{
+        "year": year,
         "title": paper.find(class_="maincardBody").text,
         "author": paper.find(class_="maincardFooter").text,
         "id": int(paper["id"].split("_")[1]),
         } for paper in papers]
 
 
-def get_paper_details(paper_id: int) -> list:
+def get_paper_details(year: int, paper_id: int) -> list:
     """Get the author ids of a paper.
 
     Args:
@@ -27,7 +28,7 @@ def get_paper_details(paper_id: int) -> list:
     Returns:
         list: list of author ids.
     """
-    url = f"https://icml.cc/Conferences/2022/Schedule?showEvent={paper_id}"
+    url = f"https://icml.cc/Conferences/{year}/Schedule?showEvent={paper_id}"
     soup = cached_request(url)
     authors = soup.find(id="base-main-content").find_all("button")
 
@@ -36,6 +37,7 @@ def get_paper_details(paper_id: int) -> list:
         abstract = abstract.text
 
     return {
+        "year": year,
         "authors": [{
             "id": aut["onclick"].split("'")[1],
             "name": aut.text[:-1].strip(),
@@ -44,20 +46,20 @@ def get_paper_details(paper_id: int) -> list:
         "abstract": abstract,
     }
 
-def get_university(author_id: int) -> str:
-    """Get the university of a author.
+def get_institution(year: int, author_id: int) -> str:
+    """Get the institution of a author.
 
     Args:
         author_id (int): id of the author.
 
     Returns:
-        str: university of the author.
+        str: institution of the author.
     """
-    url = f"https://icml.cc/Conferences/2022/Schedule?showSpeaker={author_id}"
+    url = f"https://icml.cc/Conferences/{year}/Schedule?showSpeaker={author_id}"
     soup = cached_request(url)
-    university = soup.find(class_="Remark").find("h4").text
-    return university
+    institution = soup.find(class_="Remark").find("h4").text
+    return institution
 
-# print(get_all_papers()[:5])
-# print(get_paper_details(17783))
-# print(get_university("68092-17783"))
+# print(get_all_papers(2022)[:5])
+# print(get_paper_details(2022, 17783))
+# print(get_institution(2022, "68092-17783"))

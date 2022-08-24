@@ -129,6 +129,6 @@ dmypy.json
 .pyre/
 
 records.json
-records.csv
+*.csv
 cache
 *.pdf
