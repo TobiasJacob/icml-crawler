@@ -5,7 +5,7 @@ import os
 import pandas as pd
 import argparse
 
-from .icml_parse import get_all_papers, get_paper_author_ids, get_university
+from .icml_parse import get_all_papers, get_paper_details, get_university
 from tqdm import tqdm
 
 def get_records(paper: dict) -> list:
@@ -14,7 +14,8 @@ def get_records(paper: dict) -> list:
     Args:
         paper (dict): paper.
     """
-    authors = get_paper_author_ids(paper["id"])
+    paper_details = get_paper_details(paper["id"])
+    authors = paper_details["authors"]
     records = []
     for author in authors:
         record = {}
@@ -22,6 +23,7 @@ def get_records(paper: dict) -> list:
         record["title"] = paper["title"]
         record["author"] = author["name"]
         record["authorid"] = author["id"]
+        record["abstract"] = paper_details["abstract"]
         record["university"] = get_university(author["id"])
         records.append(record)
     return records

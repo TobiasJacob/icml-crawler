@@ -18,7 +18,7 @@ def get_all_papers():
         } for paper in papers]
 
 
-def get_paper_author_ids(paper_id: int) -> list:
+def get_paper_details(paper_id: int) -> list:
     """Get the author ids of a paper.
 
     Args:
@@ -31,10 +31,18 @@ def get_paper_author_ids(paper_id: int) -> list:
     soup = cached_request(url)
     authors = soup.find(id="base-main-content").find_all("button")
 
-    return [{
-        "id": aut["onclick"].split("'")[1],
-        "name": aut.text[:-1].strip(),
-    } for aut in authors] #[int(author["href"].split("/")[-1]) for author in authors]
+    abstract = soup.find(class_="abstractContainer").find("p")
+    if abstract is not None:
+        abstract = abstract.text
+
+    return {
+        "authors": [{
+            "id": aut["onclick"].split("'")[1],
+            "name": aut.text[:-1].strip(),
+        } for aut in authors],
+        "id": paper_id,
+        "abstract": abstract,
+    }
 
 def get_university(author_id: int) -> str:
     """Get the university of a author.
@@ -51,5 +59,5 @@ def get_university(author_id: int) -> str:
     return university
 
 # print(get_all_papers()[:5])
-# print(get_paper_author_ids(17783))
+# print(get_paper_details(17783))
 # print(get_university("68092-17783"))
